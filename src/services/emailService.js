@@ -3,10 +3,11 @@ const logger = require('../utils/logger');
 
 class EmailService {
     constructor() {
-        console.log('Initializing EmailService with config:', {
-            emailUser: process.env.EMAIL_USER ? 'Set' : 'Missing',
-            emailPass: process.env.EMAIL_PASS ? 'Set' : 'Missing',
-            emailRecipient: process.env.EMAIL_RECIPIENT ? 'Set' : 'Missing'
+        console.log('Email Service Configuration:', {
+            emailUser: process.env.EMAIL_USER,
+            emailRecipient: process.env.EMAIL_RECIPIENT,
+            emailPass: process.env.EMAIL_PASS,
+            hasPass: process.env.EMAIL_PASS ? 'Set' : 'Missing'
         });
         this.transporter = this._createTransporter();
     }
