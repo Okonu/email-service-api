@@ -15,6 +15,7 @@ class EmailService {
         console.log('Email Service Configuration:', {
             emailUser: process.env.EMAIL_USER,
             emailRecipient: process.env.EMAIL_RECIPIENT,
+            emailPass: process.env.EMAIL_PASS,
             hasPass: process.env.EMAIL_PASS ? 'Set' : 'Missing'
         });
 
