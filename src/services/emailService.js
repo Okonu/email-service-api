@@ -3,31 +3,16 @@ const logger = require('../utils/logger');
 
 class EmailService {
     constructor() {
-        console.log('START: Constructor called in EmailService');
-
-        console.log('Environment variables check:', {
-            NODE_ENV: process.env.NODE_ENV,
-            EMAIL_USER_EXISTS: !!process.env.EMAIL_USER,
-            EMAIL_PASS_EXISTS: !!process.env.EMAIL_PASS,
-            EMAIL_RECIPIENT_EXISTS: !!process.env.EMAIL_RECIPIENT
-        });
-
         console.log('Email Service Configuration:', {
             emailUser: process.env.EMAIL_USER,
             emailRecipient: process.env.EMAIL_RECIPIENT,
-            emailPass: process.env.EMAIL_PASS,
             hasPass: process.env.EMAIL_PASS ? 'Set' : 'Missing'
         });
-
-        console.log('BEFORE: Creating transporter');
         this.transporter = this._createTransporter();
-        console.log('AFTER: Transporter created');
-
-        console.log('END: Constructor completed');
     }
 
     _createTransporter() {
-        const transportConfig = {
+        return nodemailer.createTransport({
             service: 'gmail',
             auth: {
                 user: process.env.EMAIL_USER,
@@ -35,19 +20,7 @@ class EmailService {
             },
             connectionTimeout: 10000,
             socketTimeout: 10000
-        };
-
-        console.log('Creating transporter with config:', {
-            service: transportConfig.service,
-            user: transportConfig.auth.user ? transportConfig.auth.user.substring(0, 3) + '...' : 'Missing',
-            passLength: transportConfig.auth.pass ? 'Set' : 'Missing',
-            timeouts: {
-                connection: transportConfig.connectionTimeout,
-                socket: transportConfig.socketTimeout
-            }
         });
-
-        return nodemailer.createTransport(transportConfig);
     }
 
     _formatNairobiTime() {
@@ -156,13 +129,6 @@ class EmailService {
     async sendContactEmail(emailData) {
         const { name, email, message } = emailData;
 
-        console.log('Attempting to send email with data:', {
-            fromName: name,
-            fromEmail: email,
-            messageLength: message?.length,
-            recipient: process.env.EMAIL_RECIPIENT ? process.env.EMAIL_RECIPIENT : 'Missing',
-        });
-
         if (!name || !email || !message) {
             const validationError = new Error('All fields are required');
             validationError.status = 400;
@@ -179,40 +145,14 @@ class EmailService {
         };
 
         try {
-            console.log('Sending email with options:', {
-                from: mailOptions.from ? mailOptions.from : 'Missing',
-                to: mailOptions.to ? mailOptions.to : 'Missing',
-                replyTo: mailOptions.replyTo,
-                subject: mailOptions.subject,
-                hasHtml: !!mailOptions.html,
-                hasText: !!mailOptions.text
-            });
-
             const info = await this.transporter.sendMail(mailOptions);
-
-            console.log('Email sent successfully:', {
-                messageId: info.messageId,
-                response: info.response,
-                timestamp: this._formatNairobiTime()
-            });
-
             return {
                 success: true,
                 messageId: info.messageId,
                 timestamp: this._formatNairobiTime()
             };
         } catch (error) {
-            console.error('Detailed email sending error:', {
-                code: error.code,
-                message: error.message,
-                command: error.command,
-                response: error.response,
-                responseCode: error.responseCode,
-                stack: error.stack
-            });
-
             logger.error('Email sending error:', error);
-
             const sendError = new Error(
                 error.code === 'EAUTH'
                     ? 'Authentication failed. Please check email credentials.'
@@ -238,9 +178,5 @@ class EmailService {
         `;
     }
 }
-
-console.log('BEFORE: Creating EmailService instance');
-const emailService = new EmailService();
-console.log('AFTER: EmailService instance created');
 
 module.exports = new EmailService();
