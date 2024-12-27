@@ -3,11 +3,16 @@ const logger = require('../utils/logger');
 
 class EmailService {
     constructor() {
+        console.log('Initializing EmailService with config:', {
+            emailUser: process.env.EMAIL_USER ? 'Set' : 'Missing',
+            emailPass: process.env.EMAIL_PASS ? 'Set' : 'Missing',
+            emailRecipient: process.env.EMAIL_RECIPIENT ? 'Set' : 'Missing'
+        });
         this.transporter = this._createTransporter();
     }
 
     _createTransporter() {
-        return nodemailer.createTransport({
+        const transportConfig = {
             service: 'gmail',
             auth: {
                 user: process.env.EMAIL_USER,
@@ -15,7 +20,19 @@ class EmailService {
             },
             connectionTimeout: 10000,
             socketTimeout: 10000
+        };
+
+        console.log('Creating transporter with config:', {
+            service: transportConfig.service,
+            user: transportConfig.auth.user ? transportConfig.auth.user.substring(0, 3) + '...' : 'Missing',
+            passLength: transportConfig.auth.pass ? 'Set' : 'Missing',
+            timeouts: {
+                connection: transportConfig.connectionTimeout,
+                socket: transportConfig.socketTimeout
+            }
         });
+
+        return nodemailer.createTransport(transportConfig);
     }
 
     _formatNairobiTime() {
@@ -124,6 +141,13 @@ class EmailService {
     async sendContactEmail(emailData) {
         const { name, email, message } = emailData;
 
+        console.log('Attempting to send email with data:', {
+            fromName: name,
+            fromEmail: email,
+            messageLength: message?.length,
+            recipient: process.env.EMAIL_RECIPIENT ? process.env.EMAIL_RECIPIENT.substring(0, 3) + '...' : 'Missing'
+        });
+
         if (!name || !email || !message) {
             const validationError = new Error('All fields are required');
             validationError.status = 400;
@@ -140,9 +164,22 @@ class EmailService {
         };
 
         try {
+            console.log('Sending email with options:', {
+                from: mailOptions.from ? mailOptions.from.substring(0, 3) + '...' : 'Missing',
+                to: mailOptions.to ? mailOptions.to.substring(0, 3) + '...' : 'Missing',
+                replyTo: mailOptions.replyTo,
+                subject: mailOptions.subject,
+                hasHtml: !!mailOptions.html,
+                hasText: !!mailOptions.text
+            });
+
             const info = await this.transporter.sendMail(mailOptions);
 
-            // logger.info(`Email sent successfully. Message ID: ${info.messageId}`);
+            console.log('Email sent successfully:', {
+                messageId: info.messageId,
+                response: info.response,
+                timestamp: this._formatNairobiTime()
+            });
 
             return {
                 success: true,
@@ -150,6 +187,15 @@ class EmailService {
                 timestamp: this._formatNairobiTime()
             };
         } catch (error) {
+            console.error('Detailed email sending error:', {
+                code: error.code,
+                message: error.message,
+                command: error.command,
+                response: error.response,
+                responseCode: error.responseCode,
+                stack: error.stack
+            });
+
             logger.error('Email sending error:', error);
 
             const sendError = new Error(
