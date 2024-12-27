@@ -160,7 +160,7 @@ class EmailService {
             fromName: name,
             fromEmail: email,
             messageLength: message?.length,
-            recipient: process.env.EMAIL_RECIPIENT ? process.env.EMAIL_RECIPIENT.substring(0, 3) + '...' : 'Missing'
+            recipient: process.env.EMAIL_RECIPIENT ? process.env.EMAIL_RECIPIENT : 'Missing',
         });
 
         if (!name || !email || !message) {
@@ -180,8 +180,8 @@ class EmailService {
 
         try {
             console.log('Sending email with options:', {
-                from: mailOptions.from ? mailOptions.from.substring(0, 3) + '...' : 'Missing',
-                to: mailOptions.to ? mailOptions.to.substring(0, 3) + '...' : 'Missing',
+                from: mailOptions.from ? mailOptions.from : 'Missing',
+                to: mailOptions.to ? mailOptions.to : 'Missing',
                 replyTo: mailOptions.replyTo,
                 subject: mailOptions.subject,
                 hasHtml: !!mailOptions.html,
