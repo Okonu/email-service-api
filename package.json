@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "NODE_ENV=production node index.js",
+    "vercel-build": "echo 'Build step (if needed)'",
     "dev": "node --watch index.js"
   },
   "keywords": ["email", "service", "backend", "express"],
