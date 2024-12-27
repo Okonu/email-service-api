@@ -9,8 +9,9 @@ const app = express();
 
 app.use(cors({
     origin: process.env.FRONTEND_URL || 'https://okonu.vercel.app',
-    methods: ['POST', 'GET'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ['POST', 'GET', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
 }));
 app.use(helmet());
 app.use(express.json());
