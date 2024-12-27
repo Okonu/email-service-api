@@ -1,0 +1,25 @@
+{
+  "name": "contact-form-email-service",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "NODE_ENV=production node index.js",
+    "dev": "node --watch index.js"
+  },
+  "keywords": ["email", "service", "backend", "express"],
+  "author": "IOkonu",
+  "license": "ISC",
+  "description": "Backend service for handling contact form email submissions",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.1",
+    "helmet": "^7.1.0",
+    "nodemailer": "^6.9.13",
+    "winston": "^3.13.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
