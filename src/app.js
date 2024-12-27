@@ -7,8 +7,11 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 app.use((req, res, next) => {
     console.log(`${req.method} ${req.url} - Origin: ${req.headers.origin}`);
+    console.log('Headers:', req.headers);
     next();
 });
 
@@ -30,7 +33,9 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            connectSrc: ["'self'", "https://okonu.vercel.app"]
+            connectSrc: ["'self'", "https://okonu.vercel.app", "http://localhost:3000"],
+            formAction: ["'self'"],
+            frameAncestors: ["'none'"]
         }
     }
 }));
@@ -41,15 +46,21 @@ app.use(express.urlencoded({ extended: true }));
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
-    message: 'Too many requests from this IP, please try again later'
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: 'Too many requests from this IP, please try again later',
+    keyGenerator: (req) => {
+        return req.ip || req.headers['x-forwarded-for'];
+    }
 });
 app.use(limiter);
 
-// Test endpoint to verify CORS
 app.get('/api/test-cors', (req, res) => {
     res.json({
         message: 'CORS is working',
-        origin: req.headers.origin
+        origin: req.headers.origin,
+        ip: req.ip,
+        forwardedFor: req.headers['x-forwarded-for']
     });
 });
 
@@ -58,7 +69,9 @@ app.use('/api', emailRoutes);
 app.get('/health', (req, res) => {
     res.status(200).json({
         status: 'healthy',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV,
+        cors: corsOptions.origin
     });
 });
 
