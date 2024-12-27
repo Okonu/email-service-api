@@ -3,13 +3,26 @@ const logger = require('../utils/logger');
 
 class EmailService {
     constructor() {
+        console.log('START: Constructor called in EmailService');
+
+        console.log('Environment variables check:', {
+            NODE_ENV: process.env.NODE_ENV,
+            EMAIL_USER_EXISTS: !!process.env.EMAIL_USER,
+            EMAIL_PASS_EXISTS: !!process.env.EMAIL_PASS,
+            EMAIL_RECIPIENT_EXISTS: !!process.env.EMAIL_RECIPIENT
+        });
+
         console.log('Email Service Configuration:', {
             emailUser: process.env.EMAIL_USER,
             emailRecipient: process.env.EMAIL_RECIPIENT,
-            emailPass: process.env.EMAIL_PASS,
             hasPass: process.env.EMAIL_PASS ? 'Set' : 'Missing'
         });
+
+        console.log('BEFORE: Creating transporter');
         this.transporter = this._createTransporter();
+        console.log('AFTER: Transporter created');
+
+        console.log('END: Constructor completed');
     }
 
     _createTransporter() {
@@ -224,5 +237,9 @@ class EmailService {
         `;
     }
 }
+
+console.log('BEFORE: Creating EmailService instance');
+const emailService = new EmailService();
+console.log('AFTER: EmailService instance created');
 
 module.exports = new EmailService();
