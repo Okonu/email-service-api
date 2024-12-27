@@ -1,4 +1,4 @@
-# Contact Form Email Service Backend
+# Contact Form Email Service Backend API
 
 ## Overview
 A robust, secure Express.js backend service for handling contact form email submissions.
@@ -13,7 +13,7 @@ A robust, secure Express.js backend service for handling contact form email subm
 - Environment-based configuration
 
 ## Prerequisites
-- Node.js (v14+ recommended)
+- Node.js (v18+ recommended)
 - npm or yarn
 - Gmail Account with App Password
 
@@ -21,8 +21,8 @@ A robust, secure Express.js backend service for handling contact form email subm
 
 1. Clone the repository
 ```bash
-git clone your-repo-url
-cd your-project-directory
+git clone https://github.com/Okonu/email-service-api.git
+cd email-service-api
 ```
 
 2. Install dependencies
@@ -61,33 +61,11 @@ npm run dev
 npm start
 ```
 
-## Testing
-```bash
-npm test
-```
-
-## Linting
-```bash
-npm run lint
-```
-
-## Security Recommendations
-- Never commit `.env` file
-- Use strong, unique App Password
-- Limit frontend access via CORS
-- Monitor logs
-- Implement additional rate limiting in production
-
 ## Troubleshooting
 - Verify Gmail credentials
 - Check firewall settings
 - Ensure correct environment variables
 - Review application logs
-
-## Deployment
-- Use process managers like PM2
-- Set up environment-specific configurations
-- Implement proper logging and monitoring
 
 ## License
 MIT License
