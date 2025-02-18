@@ -17,6 +17,10 @@ A robust, secure Express.js backend service for handling contact form email subm
 - npm or yarn
 - Gmail Account with App Password
 
+## The endpoint
+```bash
+/send-email
+```
 ## Installation
 
 1. Clone the repository
