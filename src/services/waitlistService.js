@@ -213,15 +213,18 @@ class WaitlistService {
                 };
             }
 
-            const docRef = await addDoc(waitlistRef, {
+            const docData = {
                 email,
-                ipAddress,
-                utmSource,
-                utmMedium,
-                utmCampaign,
                 status: 'active',
                 joinedAt: new Date().toISOString()
-            });
+            };
+
+            if (ipAddress) docData.ipAddress = ipAddress;
+            if (utmSource) docData.utmSource = utmSource;
+            if (utmMedium) docData.utmMedium = utmMedium;
+            if (utmCampaign) docData.utmCampaign = utmCampaign;
+
+            const docRef = await addDoc(waitlistRef, docData);
 
             logger.info(`New user added to waitlist: ${email}`);
 
@@ -240,11 +243,6 @@ class WaitlistService {
         }
     }
 
-    /**
-     * Send a confirmation email to the waitlist subscriber
-     * @param {string} email - Recipient email
-     * @returns {Promise<Object>} - Result of sending email
-     */
     async sendWaitlistConfirmationEmail(email) {
         const appName = process.env.APP_NAME || 'NAME';
 
