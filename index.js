@@ -1,6 +1,7 @@
 require('dotenv').config();
 const http = require('http');
 const app = require('./src/app');
+const logger = require('./src/utils/logger');
 
 const ENV = process.env.NODE_ENV || 'development';
 const PORT = process.env.PORT || 3000;
@@ -11,14 +12,14 @@ if (ENV !== 'production') {
     const server = http.createServer(app);
 
     server.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-        console.log(`Environment: ${ENV}`);
+        logger.info(`Server running on port ${PORT}`);
+        logger.info(`Environment: ${ENV}`);
     });
 
     process.on('SIGTERM', () => {
-        console.log('SIGTERM received. Shutting down gracefully');
+        logger.info('SIGTERM received. Shutting down gracefully');
         server.close(() => {
-            console.log('Process terminated');
+            logger.info('Process terminated');
             process.exit(0);
         });
     });
