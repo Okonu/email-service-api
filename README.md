@@ -1,5 +1,4 @@
 # Contact Form Email Service & Waitlist API
-
 ## Overview
 A robust, secure Express.js backend service for handling contact form email submissions and waitlist signups using Firebase Firestore.
 
@@ -21,12 +20,10 @@ A robust, secure Express.js backend service for handling contact form email subm
 - Firebase account and project
 
 ## API Endpoints
-
 ### Contact Form
 ```bash
 POST /api/send-email
 ```
-
 ### Waitlist
 ```bash
 POST /api/waitlist
@@ -34,24 +31,20 @@ GET /api/waitlist/health
 ```
 
 ## Installation
-
 1. Clone the repository
 ```bash
 git clone https://github.com/Okonu/email-service-api.git
 cd email-service-api
 ```
-
 2. Install dependencies
 ```bash
 npm install
 ```
-
 3. Configure Environment
 - Copy `.env.example` to `.env`
 - Fill in your configuration details
 
 ## Configuration
-
 ### Gmail App Password
 1. Enable 2-Step Verification in your Google Account
 2. Go to App Passwords
@@ -64,7 +57,6 @@ npm install
 4. Add the Firebase configuration to your environment variables
 
 ### Environment Variables
-
 #### Server Configuration
 - `PORT`: Server port
 - `NODE_ENV`: Application environment (development, production)
@@ -88,17 +80,19 @@ npm install
 
 #### Application Details
 - `APP_NAME`: Application name for email templates
+- `APP_TAGLINE`: Tagline for the application
+- `WEBSITE_URL`: URL for the main website
+- `BRAND_COLOR`: Primary brand color (e.g., "#FF5722")
+- `LOGO_URL`: URL to your logo image
 - `SOCIAL_TWITTER`: Twitter URL for waitlist emails
 - `SOCIAL_INSTAGRAM`: Instagram URL for waitlist emails
 - `SOCIAL_LINKEDIN`: LinkedIn URL for waitlist emails
 
 ## Running the Application
-
 ### Development
 ```bash
 npm run dev
 ```
-
 ### Production
 ```bash
 npm start
