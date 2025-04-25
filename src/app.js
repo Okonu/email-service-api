@@ -5,15 +5,20 @@ const rateLimit = require('express-rate-limit');
 const emailRoutes = require('./routes/emailRoutes');
 const waitlistRoutes = require('./routes/waitlistRoutes');
 const errorHandler = require('./middleware/errorHandler');
-const db = require('./utils/db');
 const logger = require('./utils/logger');
 
-const app = express();
+try {
+    const { db } = require('./utils/firebase');
+    if (db) {
+        logger.info('Firebase connection initialized successfully');
+    } else {
+        logger.warn('Firebase connection not available - some features may be limited');
+    }
+} catch (error) {
+    logger.error('Error initializing Firebase:', error);
+}
 
-db.initPool().catch(err => {
-    logger.error('Failed to initialize database connection:', err);
-    process.exit(1);
-});
+const app = express();
 
 app.set('trust proxy', 1);
 
@@ -100,7 +105,7 @@ app.get('/health', (req, res) => {
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV,
         cors: corsOptions.origin,
-        dbConnected: !!db.getPool()
+        database: 'Firebase Firestore'
     });
 });
 

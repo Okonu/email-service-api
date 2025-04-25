@@ -5,43 +5,24 @@ const logger = require('../utils/logger');
 
 class WaitlistService {
     constructor() {
-        try {
-            console.log('Waitlist Service Configuration:', {
-                emailUser: process.env.EMAIL_USER ? 'Set' : 'Missing',
-                hasPass: process.env.EMAIL_PASS ? 'Set' : 'Missing',
-                appName: process.env.APP_NAME || 'NAME'
-            });
-
-            if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-                logger.warn('Email configuration is incomplete. Some functionality may be limited.');
-            }
-
-            this.transporter = this._createTransporter();
-        } catch (error) {
-            logger.error('Error initializing WaitlistService:', error);
-        }
+        console.log('Waitlist Service Configuration:', {
+            emailUser: process.env.EMAIL_USER,
+            hasPass: process.env.EMAIL_PASS ? 'Set' : 'Missing',
+            appName: process.env.APP_NAME || 'NAME'
+        });
+        this.transporter = this._createTransporter();
     }
 
     _createTransporter() {
-        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-            logger.warn('Email credentials not set. Email functionality will be disabled.');
-            return null;
-        }
-
-        try {
-            return nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: process.env.EMAIL_USER,
-                    pass: process.env.EMAIL_PASS
-                },
-                connectionTimeout: 10000,
-                socketTimeout: 10000
-            });
-        } catch (error) {
-            logger.error('Failed to create email transporter:', error);
-            return null;
-        }
+        return nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            },
+            connectionTimeout: 10000,
+            socketTimeout: 10000
+        });
     }
 
     _formatNairobiTime() {
@@ -72,12 +53,7 @@ class WaitlistService {
         }
 
         try {
-            if (!db) {
-                throw new Error('Database connection is not available');
-            }
-
             const waitlistRef = collection(db, 'waitlist');
-
             const q = query(waitlistRef, where("email", "==", email));
             const querySnapshot = await getDocs(q);
 
@@ -104,15 +80,10 @@ class WaitlistService {
             if (utmCampaign) docData.utmCampaign = String(utmCampaign);
 
             const docRef = await addDoc(waitlistRef, docData);
-            logger.info(`New user added to waitlist: ${email}, document ID: ${docRef.id}`);
 
-            try {
-                if (this.transporter) {
-                    await this.sendWaitlistConfirmationEmail(email);
-                }
-            } catch (emailError) {
-                logger.error(`Failed to send confirmation email to ${email}:`, emailError);
-            }
+            logger.info(`New user added to waitlist: ${email}`);
+
+            await this.sendWaitlistConfirmationEmail(email);
 
             return {
                 success: true,
@@ -123,20 +94,11 @@ class WaitlistService {
 
         } catch (error) {
             logger.error('Error adding to waitlist:', error);
-            error.status = error.status || 500;
             throw error;
         }
     }
 
     async sendWaitlistConfirmationEmail(email) {
-        if (!this.transporter) {
-            logger.warn(`Cannot send email to ${email}: Email transporter not initialized`);
-            return {
-                success: false,
-                error: 'Email service not configured'
-            };
-        }
-
         const appName = process.env.APP_NAME || 'NAME';
 
         const mailOptions = {
@@ -157,7 +119,11 @@ class WaitlistService {
             };
         } catch (error) {
             logger.error('Error sending waitlist confirmation email:', error);
-            throw error;
+            return {
+                success: false,
+                error: error.message,
+                timestamp: this._formatNairobiTime()
+            };
         }
     }
 
@@ -208,6 +174,11 @@ class WaitlistService {
                 .email-content {
                     padding: 30px;
                 }
+                .email-section {
+                    margin-bottom: 20px;
+                    padding-bottom: 20px;
+                    border-bottom: 1px solid #e5e7eb;
+                }
                 .social-links {
                     display: flex;
                     justify-content: center;
@@ -250,6 +221,16 @@ class WaitlistService {
                     font-size: 12px;
                     padding: 20px;
                     background-color: #f9fafb;
+                }
+                .cta-button {
+                    display: inline-block;
+                    background-color: #4CAF50;
+                    color: white;
+                    text-decoration: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    margin: 20px 0;
                 }
             </style>
         </head>
