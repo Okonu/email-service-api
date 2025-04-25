@@ -6,6 +6,7 @@ A robust, secure Express.js backend service for handling contact form email subm
 ## Features
 - Secure email sending via Nodemailer
 - MySQL database integration for waitlist users
+- SSH tunnel for secure database connections
 - Input validation
 - Rate limiting
 - Comprehensive error handling
@@ -18,6 +19,7 @@ A robust, secure Express.js backend service for handling contact form email subm
 - npm or yarn
 - Gmail Account with App Password
 - MySQL database
+- SSH access to your database server
 
 ## API Endpoints
 
@@ -62,23 +64,53 @@ npm run init-db
 3. Generate an App Password for your application
 
 ### Database Setup
-1. Create a MySQL database
+1. Create a MySQL database on your server
 2. Update the database connection details in `.env`
+3. For secure remote connections, enable the SSH tunnel:
+   ```
+   USE_SSH_TUNNEL=true
+   SSH_HOST=your-vps-ip
+   SSH_PORT=22
+   SSH_USERNAME=root
+   SSH_PASSWORD=your-password
+   ```
+4. Run the database initialization script:
+   ```bash
+   npm run init-db
+   ```
 
 ### Environment Variables
+
+#### Server Configuration
 - `PORT`: Server port
-- `NODE_ENV`: Application environment
+- `NODE_ENV`: Application environment (development, production)
+
+#### Email Configuration
 - `EMAIL_USER`: Gmail account
 - `EMAIL_PASS`: Gmail App Password
 - `EMAIL_RECIPIENT`: Email where contact form messages will be sent
+
+#### Database Configuration
 - `DB_CONNECTION`: Database type (mysql)
-- `DB_HOST`: Database host
-- `DB_PORT`: Database port
+- `DB_HOST`: Database host (IP address or hostname)
+- `DB_PORT`: Database port (typically 3306)
 - `DB_DATABASE`: Database name
 - `DB_USERNAME`: Database username
 - `DB_PASSWORD`: Database password
+
+#### SSH Tunnel Configuration
+- `USE_SSH_TUNNEL`: Set to 'true' to enable SSH tunnel for database
+- `SSH_HOST`: SSH server host (usually same as DB_HOST)
+- `SSH_PORT`: SSH port (usually 22)
+- `SSH_USERNAME`: SSH username
+- `SSH_PASSWORD`: SSH password
+- `SSH_PRIVATE_KEY_PATH`: Path to SSH private key file (alternative to password)
+
+#### CORS Configuration
 - `FRONTEND_URL`: Primary frontend domain
 - `ADDITIONAL_FRONTEND_URLS`: Comma-separated list of additional allowed domains
+
+#### Application Details
 - `APP_NAME`: Application name for email templates
 - `SOCIAL_TWITTER`: Twitter URL for waitlist emails
 - `SOCIAL_INSTAGRAM`: Instagram URL for waitlist emails
@@ -99,9 +131,10 @@ npm start
 ## Troubleshooting
 - Verify Gmail credentials
 - Check database connection
-- Check firewall settings
-- Ensure correct environment variables
-- Review application logs
+- Check SSH access to your server
+- Verify firewall settings allow SSH connections
+- Ensure correct environment variables are set
+- Review application logs for detailed error messages
 
 ## License
 MIT License
