@@ -1,12 +1,12 @@
 # Contact Form Email Service & Waitlist API
 
 ## Overview
-A robust, secure Express.js backend service for handling contact form email submissions and waitlist signups.
+A robust, secure Express.js backend service for handling contact form email submissions and waitlist signups using Firebase Firestore.
 
 ## Features
 - Secure email sending via Nodemailer
-- MySQL database integration for waitlist users
-- SSH tunnel for secure database connections
+- Firebase Firestore integration for waitlist users
+- Serverless-ready architecture
 - Input validation
 - Rate limiting
 - Comprehensive error handling
@@ -18,8 +18,7 @@ A robust, secure Express.js backend service for handling contact form email subm
 - Node.js (v18+ recommended)
 - npm or yarn
 - Gmail Account with App Password
-- MySQL database
-- SSH access to your database server
+- Firebase account and project
 
 ## API Endpoints
 
@@ -51,11 +50,6 @@ npm install
 - Copy `.env.example` to `.env`
 - Fill in your configuration details
 
-4. Set up the database
-```bash
-npm run init-db
-```
-
 ## Configuration
 
 ### Gmail App Password
@@ -63,21 +57,11 @@ npm run init-db
 2. Go to App Passwords
 3. Generate an App Password for your application
 
-### Database Setup
-1. Create a MySQL database on your server
-2. Update the database connection details in `.env`
-3. For secure remote connections, enable the SSH tunnel:
-   ```
-   USE_SSH_TUNNEL=true
-   SSH_HOST=your-vps-ip
-   SSH_PORT=22
-   SSH_USERNAME=root
-   SSH_PASSWORD=your-password
-   ```
-4. Run the database initialization script:
-   ```bash
-   npm run init-db
-   ```
+### Firebase Setup
+1. Create a Firebase project at [firebase.google.com](https://firebase.google.com)
+2. Enable Firestore Database in your project
+3. Generate a web app configuration (Project settings > Your apps > Web app)
+4. Add the Firebase configuration to your environment variables
 
 ### Environment Variables
 
@@ -90,21 +74,13 @@ npm run init-db
 - `EMAIL_PASS`: Gmail App Password
 - `EMAIL_RECIPIENT`: Email where contact form messages will be sent
 
-#### Database Configuration
-- `DB_CONNECTION`: Database type (mysql)
-- `DB_HOST`: Database host (IP address or hostname)
-- `DB_PORT`: Database port (typically 3306)
-- `DB_DATABASE`: Database name
-- `DB_USERNAME`: Database username
-- `DB_PASSWORD`: Database password
-
-#### SSH Tunnel Configuration
-- `USE_SSH_TUNNEL`: Set to 'true' to enable SSH tunnel for database
-- `SSH_HOST`: SSH server host (usually same as DB_HOST)
-- `SSH_PORT`: SSH port (usually 22)
-- `SSH_USERNAME`: SSH username
-- `SSH_PASSWORD`: SSH password
-- `SSH_PRIVATE_KEY_PATH`: Path to SSH private key file (alternative to password)
+#### Firebase Configuration
+- `FIREBASE_API_KEY`: Your Firebase API key
+- `FIREBASE_AUTH_DOMAIN`: Firebase auth domain
+- `FIREBASE_PROJECT_ID`: Firebase project ID
+- `FIREBASE_STORAGE_BUCKET`: Firebase storage bucket
+- `FIREBASE_MESSAGING_SENDER_ID`: Firebase messaging sender ID
+- `FIREBASE_APP_ID`: Firebase app ID
 
 #### CORS Configuration
 - `FRONTEND_URL`: Primary frontend domain
@@ -130,9 +106,7 @@ npm start
 
 ## Troubleshooting
 - Verify Gmail credentials
-- Check database connection
-- Check SSH access to your server
-- Verify firewall settings allow SSH connections
+- Check Firebase connection and permissions
 - Ensure correct environment variables are set
 - Review application logs for detailed error messages
 

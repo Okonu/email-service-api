@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
-const db = require('../utils/db');
+const { collection, addDoc, query, where, getDocs } = require('firebase/firestore');
+const { db } = require('../utils/firebase');
 const logger = require('../utils/logger');
 
 class WaitlistService {
@@ -198,24 +199,29 @@ class WaitlistService {
         }
 
         try {
-            const existingUser = await db.query(
-                'SELECT * FROM waitlist_users WHERE email = ?',
-                [email]
-            );
+            const waitlistRef = collection(db, 'waitlist');
+            const q = query(waitlistRef, where("email", "==", email));
+            const querySnapshot = await getDocs(q);
 
-            if (existingUser && existingUser.length > 0) {
+            if (!querySnapshot.empty) {
                 logger.info(`Email already exists in waitlist: ${email}`);
                 return {
                     success: true,
                     message: 'You are already on our waitlist!',
-                    alreadyExists: true
+                    alreadyExists: true,
+                    timestamp: this._formatNairobiTime()
                 };
             }
 
-            const result = await db.query(
-                'INSERT INTO waitlist_users (email, ip_address, utm_source, utm_medium, utm_campaign) VALUES (?, ?, ?, ?, ?)',
-                [email, ipAddress, utmSource, utmMedium, utmCampaign]
-            );
+            const docRef = await addDoc(waitlistRef, {
+                email,
+                ipAddress,
+                utmSource,
+                utmMedium,
+                utmCampaign,
+                status: 'active',
+                joinedAt: new Date().toISOString()
+            });
 
             logger.info(`New user added to waitlist: ${email}`);
 
@@ -224,21 +230,21 @@ class WaitlistService {
             return {
                 success: true,
                 message: 'Successfully added to waitlist',
-                userId: result.insertId,
+                documentId: docRef.id,
                 timestamp: this._formatNairobiTime()
             };
 
         } catch (error) {
             logger.error('Error adding to waitlist:', error);
-            if (error.code === 'ER_DUP_ENTRY') {
-                const duplicateError = new Error('You are already on our waitlist!');
-                duplicateError.status = 409;
-                throw duplicateError;
-            }
             throw error;
         }
     }
 
+    /**
+     * Send a confirmation email to the waitlist subscriber
+     * @param {string} email - Recipient email
+     * @returns {Promise<Object>} - Result of sending email
+     */
     async sendWaitlistConfirmationEmail(email) {
         const appName = process.env.APP_NAME || 'NAME';
 

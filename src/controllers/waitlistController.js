@@ -36,6 +36,7 @@ class WaitlistController {
             res.status(200).json({
                 success: true,
                 message: 'Waitlist system is operational',
+                storage: 'Firebase Firestore',
                 timestamp: new Date().toISOString()
             });
         } catch (error) {
