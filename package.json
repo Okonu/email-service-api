@@ -5,17 +5,19 @@
   "scripts": {
     "start": "NODE_ENV=production node index.js",
     "vercel-build": "echo 'Build step (if needed)'",
-    "dev": "node --watch index.js"
+    "dev": "node --watch index.js",
+    "init-db": "node src/scripts/init-db.js"
   },
   "keywords": [
     "email",
     "service",
     "backend",
-    "express"
+    "express",
+    "waitlist"
   ],
   "author": "IOkonu",
   "license": "ISC",
-  "description": "Backend service for handling contact form email submissions",
+  "description": "Backend service for handling contact form email submissions and waitlist signups",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -24,6 +26,7 @@
     "helmet": "^7.1.0",
     "mysql2": "^3.14.0",
     "nodemailer": "^6.9.13",
+    "ssh2": "^1.16.0",
     "winston": "^3.13.0"
   },
   "engines": {
