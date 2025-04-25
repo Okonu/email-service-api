@@ -3,20 +3,38 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const emailRoutes = require('./routes/emailRoutes');
+const waitlistRoutes = require('./routes/waitlistRoutes');
 const errorHandler = require('./middleware/errorHandler');
+const db = require('./utils/db');
+const logger = require('./utils/logger');
 
 const app = express();
+
+db.initPool().catch(err => {
+    logger.error('Failed to initialize database connection:', err);
+    process.exit(1);
+});
 
 app.set('trust proxy', 1);
 
 app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url} - Origin: ${req.headers.origin}`);
-    console.log('Headers:', req.headers);
+    logger.info(`${req.method} ${req.url} - Origin: ${req.headers.origin}`);
+    logger.debug('Headers:', req.headers);
     next();
 });
 
+const allowedOrigins = [
+    'http://localhost:3000',
+    process.env.FRONTEND_URL
+];
+
+if (process.env.ADDITIONAL_FRONTEND_URLS) {
+    const additionalUrls = process.env.ADDITIONAL_FRONTEND_URLS.split(',').map(url => url.trim());
+    allowedOrigins.push(...additionalUrls);
+}
+
 const corsOptions = {
-    origin: ['https://okonu.vercel.app', 'http://localhost:3000'],
+    origin: allowedOrigins.filter(Boolean),
     methods: ['POST', 'GET', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
     optionsSuccessStatus: 200,
@@ -27,13 +45,22 @@ app.use(cors(corsOptions));
 
 app.options('*', cors(corsOptions));
 
+const connectSrc = ["'self'", "http://localhost:3000"];
+if (process.env.FRONTEND_URL) {
+    connectSrc.push(process.env.FRONTEND_URL);
+}
+if (process.env.ADDITIONAL_FRONTEND_URLS) {
+    const additionalUrls = process.env.ADDITIONAL_FRONTEND_URLS.split(',').map(url => url.trim());
+    connectSrc.push(...additionalUrls);
+}
+
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     crossOriginOpenerPolicy: { policy: "same-origin" },
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            connectSrc: ["'self'", "https://okonu.vercel.app", "http://localhost:3000"],
+            connectSrc: connectSrc,
             formAction: ["'self'"],
             frameAncestors: ["'none'"]
         }
@@ -65,13 +92,15 @@ app.get('/api/test-cors', (req, res) => {
 });
 
 app.use('/api', emailRoutes);
+app.use('/api', waitlistRoutes);
 
 app.get('/health', (req, res) => {
     res.status(200).json({
         status: 'healthy',
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV,
-        cors: corsOptions.origin
+        cors: corsOptions.origin,
+        dbConnected: !!db.getPool()
     });
 });
 
