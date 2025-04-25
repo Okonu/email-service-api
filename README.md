@@ -1,10 +1,11 @@
-# Contact Form Email Service Backend API
+# Contact Form Email Service & Waitlist API
 
 ## Overview
-A robust, secure Express.js backend service for handling contact form email submissions.
+A robust, secure Express.js backend service for handling contact form email submissions and waitlist signups.
 
 ## Features
 - Secure email sending via Nodemailer
+- MySQL database integration for waitlist users
 - Input validation
 - Rate limiting
 - Comprehensive error handling
@@ -16,11 +17,21 @@ A robust, secure Express.js backend service for handling contact form email subm
 - Node.js (v18+ recommended)
 - npm or yarn
 - Gmail Account with App Password
+- MySQL database
 
-## The endpoint
+## API Endpoints
+
+### Contact Form
 ```bash
-/send-email
+POST /api/send-email
 ```
+
+### Waitlist
+```bash
+POST /api/waitlist
+GET /api/waitlist/health
+```
+
 ## Installation
 
 1. Clone the repository
@@ -38,6 +49,11 @@ npm install
 - Copy `.env.example` to `.env`
 - Fill in your configuration details
 
+4. Set up the database
+```bash
+npm run init-db
+```
+
 ## Configuration
 
 ### Gmail App Password
@@ -45,13 +61,28 @@ npm install
 2. Go to App Passwords
 3. Generate an App Password for your application
 
+### Database Setup
+1. Create a MySQL database
+2. Update the database connection details in `.env`
+
 ### Environment Variables
 - `PORT`: Server port
 - `NODE_ENV`: Application environment
 - `EMAIL_USER`: Gmail account
 - `EMAIL_PASS`: Gmail App Password
 - `EMAIL_RECIPIENT`: Email where contact form messages will be sent
-- `FRONTEND_URL`: Your frontend application URL
+- `DB_CONNECTION`: Database type (mysql)
+- `DB_HOST`: Database host
+- `DB_PORT`: Database port
+- `DB_DATABASE`: Database name
+- `DB_USERNAME`: Database username
+- `DB_PASSWORD`: Database password
+- `FRONTEND_URL`: Primary frontend domain
+- `ADDITIONAL_FRONTEND_URLS`: Comma-separated list of additional allowed domains
+- `APP_NAME`: Application name for email templates
+- `SOCIAL_TWITTER`: Twitter URL for waitlist emails
+- `SOCIAL_INSTAGRAM`: Instagram URL for waitlist emails
+- `SOCIAL_LINKEDIN`: LinkedIn URL for waitlist emails
 
 ## Running the Application
 
@@ -67,6 +98,7 @@ npm start
 
 ## Troubleshooting
 - Verify Gmail credentials
+- Check database connection
 - Check firewall settings
 - Ensure correct environment variables
 - Review application logs
